@@ -8,4 +8,11 @@ use Illuminate\Database\Eloquent\Model;
 class Chirp extends Model
 {
     use HasFactory;
+
+    protected $fillable = ['message']; // enable mass assignment
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
 }
