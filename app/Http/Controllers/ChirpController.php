@@ -13,13 +13,14 @@ class ChirpController extends Controller
     /**
      * Display a listing of the resource.
      */
-    
-    public function index():Response
+
+    public function index(): Response
     {
-        
-         return Inertia::render('Chirps/Index', [
+        return Inertia::render('Chirps/Index', [
             //
-            'chirps' => Chirp::with('user:id,name')->latest()->get(),
+            'chirps' => Chirp::with('user:id,name')
+                ->latest()
+                ->get(),
         ]);
     }
 
@@ -36,12 +37,15 @@ class ChirpController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
-         $validated = $request->validate([
+        $validated = $request->validate([
             'message' => 'required|string|max:255',
         ]);
- 
-        $request->user()->chirps()->create($validated);
- 
+
+        $request
+            ->user()
+            ->chirps()
+            ->create($validated);
+
         return redirect(route('chirps.index'));
     }
 
@@ -64,27 +68,32 @@ class ChirpController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Chirp $chirp):RedirectResponse
+    public function update(Request $request, Chirp $chirp): RedirectResponse
     {
         //
-         $this->authorize('update', $chirp); //prevent everyone from being able to update Chirp 
-         // can specify whic user has authorization by php artisan make:policy ChirpPolicy --model=Chirp
-         //in app/Policies/Chirpolicy.php 
- 
+        $this->authorize('update', $chirp); //prevent everyone from being able to update Chirp
+        // can specify whic user has authorization by php artisan make:policy ChirpPolicy --model=Chirp
+        //in app/Policies/Chirpolicy.php
+
         $validated = $request->validate([
             'message' => 'required|string|max:255',
         ]);
- 
+
         $chirp->update($validated);
- 
+
         return redirect(route('chirps.index'));
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Chirp $chirp)
+    public function destroy(Chirp $chirp): RedirectResponse
     {
         //
+        $this->authorize('delete', $chirp);
+
+        $chirp->delete();
+
+        return redirect(route('chirps.index'));
     }
 }
